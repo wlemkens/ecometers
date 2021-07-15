@@ -45,7 +45,7 @@ class Datagram:
         self.crc = data[-2:]
 
 class EcoMeterS:
-    def __init__(self, port, tank_height, offset):
+    def __init__(self, port, tank_height, offset, data_callback = None):
         self._running = False
         self._shutdown = False
         self.deviceThread = threading.Thread(name="EcometerThread", target=EcoMeterS.monitorDevice, args=(self,))
@@ -54,6 +54,7 @@ class EcoMeterS:
         self.tank_height = tank_height
         self.height = self.offset + self.tank_height
         self._running = True
+        self.on_data_received = data_callback
         self.deviceThread.start()
         return
 
@@ -90,6 +91,8 @@ class EcoMeterS:
                 if datagram.command == Datagram.LIVE:
                     logging.info("Received live data")
                     self.registerData(datagram)
+                    if self.on_data_received:
+                        self.on_data_received()
         logging.debug("Connection closed")
 
     def registerData(self, datagram: Datagram):
@@ -109,3 +112,4 @@ class EcoMeterS:
         while not self._shutdown:
             time.sleep(5)
         logging.debug("stopped")
+
