@@ -45,18 +45,33 @@ class Datagram:
         self.crc = data[-2:]
 
 class EcoMeterS:
-    def __init__(self, port, tank_height, offset, data_callback = None):
+    def __init__(self, port, tank_height, offset):
         self._running = False
         self._shutdown = False
         self.deviceThread = threading.Thread(name="EcometerThread", target=EcoMeterS.monitorDevice, args=(self,))
+        self.level = None
+        self.usable = None
+        self.total = None
+        self.volume = None
+        self.temperature = None
+        self.distance = None
+        self.percentage = None
         self.port = port
         self.offset = offset
         self.tank_height = tank_height
         self.height = self.offset + self.tank_height
         self._running = True
-        self.on_data_received = data_callback
+        self.on_data_received_callbacks = []
         self.deviceThread.start()
         return
+
+    def add_on_data_received_callback(self, callback):
+        self.on_data_received_callbacks.append(callback)
+
+    def remove_on_data_received_callback(self, callback):
+        if callback in self.on_data_received_callbacks:
+            self.on_data_received_callbacks.remove(callback)
+
 
     def monitorDevice(self):
         try:
@@ -66,7 +81,7 @@ class EcoMeterS:
                 self.readData()
             logging.debug("Stopping thread")
             self._shutdown = True
-        except Excpetion as err:
+        except Exception as err:
             logging.error("monitorDevice: "+str(err))
 
     def readData(self):
@@ -91,8 +106,8 @@ class EcoMeterS:
                 if datagram.command == Datagram.LIVE:
                     logging.info("Received live data")
                     self.registerData(datagram)
-                    if self.on_data_received:
-                        self.on_data_received()
+                    for callback in self.on_data_received_callbacks:
+                        callback(self)
         logging.debug("Connection closed")
 
     def registerData(self, datagram: Datagram):

@@ -12,7 +12,8 @@ def handle_result():
     print(ecometers.temperature)
 
 logging.basicConfig(level=logging.DEBUG)
-ecometers = EcoMeterS("/dev/ttyUSB0", 190, 11, handle_result)
+ecometers = EcoMeterS("/dev/ttyUSB0", 190, 11)
+ecometers.add_on_data_received_callback(handle_result)
 
 while(True):
     time.sleep(1)
