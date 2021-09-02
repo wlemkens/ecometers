@@ -114,7 +114,7 @@ class EcoMeterS:
         tempF = datagram.payload[0] - 40
         self.temperature = round((tempF - 32) / 1.8, 1)
         self.distance = int.from_bytes(datagram.payload[1:3], "big")
-        self.level = 190 - self.distance
+        self.level = self.height - self.distance
         self.usable = int.from_bytes(datagram.payload[3:5], "big")
         self.total = int.from_bytes(datagram.payload[5:7], "big")
         self.updateTime = dt.datetime.now()
