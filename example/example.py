@@ -11,8 +11,12 @@ def handle_result(device):
     print(ecometers.level)
     print(ecometers.temperature)
 
+usb_port = "/dev/ttyUSB0"
+if len(sys.argv) > 1:
+    usb_port = sys.argv[1]
+print("Connecting on {:}".format(usb_port))
 logging.basicConfig(level=logging.DEBUG)
-ecometers = EcoMeterS("/dev/ttyUSB0", 190, 11)
+ecometers = EcoMeterS(usb_port, 190, 11)
 ecometers.add_on_data_received_callback(handle_result)
 
 while(True):
