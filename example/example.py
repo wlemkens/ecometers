@@ -7,7 +7,7 @@ from ecometers.ecometers import EcoMeterS
 import time
 import logging
 
-def handle_result():
+def handle_result(device):
     print(ecometers.level)
     print(ecometers.temperature)
 
