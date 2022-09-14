@@ -3,6 +3,7 @@ import serial
 import threading
 import time
 import logging
+import time
 
 class Datagram:
     SETCLOCK = 1
@@ -108,6 +109,9 @@ class EcoMeterS:
                     self.registerData(datagram)
                     for callback in self.on_data_received_callbacks:
                         callback(self)
+            else:
+                logging.debug("Not received the correct header")
+                time.sleep(1)
         logging.debug("Connection closed")
 
     def registerData(self, datagram: Datagram):
